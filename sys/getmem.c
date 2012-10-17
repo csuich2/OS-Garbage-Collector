@@ -28,7 +28,11 @@ WORD *getmem(unsigned nbytes)
 			restore(ps);
 			return( (WORD *)p );
 		} else if ( p->mlen > nbytes ) {
+			kprintf2("q: %d\n", q);
+			kprintf2("p: %d\n", p);
+			kprintf2("nbytes: %d\n", nbytes);
 			leftover = (struct mblock *)( (unsigned)p + nbytes );
+			kprintf2("leftover: %d\n", leftover);
 			q->mnext = leftover;
 			leftover->mnext = p->mnext;
 			leftover->mlen = p->mlen - nbytes;

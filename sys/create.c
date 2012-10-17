@@ -61,6 +61,7 @@ SYSCALL create(procaddr,ssize,priority,name,nargs,args)
 	pptr->pbase = (long) saddr;
 	pptr->pstklen = ssize;
 	pptr->psem = 0;
+	pptr->pblocks = (WORD*)NULL;
 	pptr->phasmsg = FALSE;
 	pptr->plimit = pptr->pbase - ssize + sizeof (long);	
 	pptr->pirmask[0] = 0;

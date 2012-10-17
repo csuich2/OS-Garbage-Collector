@@ -109,6 +109,10 @@ long sizmem();
 WORD *getstk(unsigned int nbytes);
 WORD *getmem(unsigned nbytes);
 SYSCALL	freemem(struct mblock *block, unsigned size);
+WORD *getmemgb(unsigned nbytes);
+SYSCALL freememgb(struct mblock *block, unsigned size);
+WORD *getmeminternal(unsigned nbytes);
+SYSCALL freememinternal(struct mblock *block, unsigned size);
 
 INTPROC	wakeup();
 

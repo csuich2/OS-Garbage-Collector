@@ -14,7 +14,7 @@
 #include <io.h>
 #include <stdio.h>
 
-/*#define DETAIL */
+#define DETAIL
 #define HOLESIZE	(600)	
 #define	HOLESTART	(640 * 1024)
 #define	HOLEEND		((1024 + HOLESIZE) * 1024)  

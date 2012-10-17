@@ -37,4 +37,10 @@ extern	char	*maxaddr;		/* max memory address		*/
 extern	WORD	_end;			/* address beyond loaded memory	*/
 extern	WORD	*end;			/* &_end + FILLSIZE		*/
 
+struct gcblock {
+	WORD*	gcbase;			/* base address of allocated block	*/
+	unsigned int	gcsize;		/* size of allocated block		*/
+	struct	gcblock *gcnext;	/* pointer to next gcblock		*/
+};
+
 #endif

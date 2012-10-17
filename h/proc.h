@@ -60,6 +60,7 @@ struct	pentry	{
 	int	fildes[_NFILE];		/* file - device translation	*/
 	int	ppagedev;		/* pageing dgram device		*/
 	int	pwaitret;
+	WORD*	pblocks;		/* linked list of memory blocks	*/
 };
 
 
