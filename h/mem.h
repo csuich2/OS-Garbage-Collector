@@ -23,7 +23,7 @@
  *  freestk  --  free stack memory allocated by getstk
  *----------------------------------------------------------------------
  */
-#define freestk(p,len)	freemem((struct mblock*)((unsigned)(p)	\
+#define freestk(p,len)	freememinternal((struct mblock*)((unsigned)(p)	\
 				- (unsigned)(roundmb(len))	\
 				+ (unsigned)sizeof(int)),	\
 				(int)roundmb(len) )

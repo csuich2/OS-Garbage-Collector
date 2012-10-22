@@ -17,6 +17,7 @@ SYSCALL kill(int pid)
 {
 	STATWORD ps;    
 	struct	pentry	*pptr;		/* points to proc. table for pid*/
+	struct	gcblock	*p;
 	int	dev;
 
 	disable(ps);
@@ -38,6 +39,12 @@ SYSCALL kill(int pid)
 		close(dev);
 	
 	send(pptr->pnxtkin, pid);
+
+	p = (struct gcblock*)proctab[pid].pblocks;
+	while (p != (struct gcblock*)NULL) {
+		freememgb((struct mblock*)p->gcbase, p->gcsize);
+		p = p->gcnext;
+	}
 
 	freestk(pptr->pbase, pptr->pstklen);
 	switch (pptr->pstate) {

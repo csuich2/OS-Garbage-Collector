@@ -21,27 +21,33 @@ SYSCALL freememgb(struct mblock *block, unsigned size)
 	p = (struct gcblock*)proctab[currpid].pblocks;
 	q = (struct gcblock*)NULL;
 	if (p == (struct gcblock*)NULL) {
-		retVal = SYSERR;
+		restore(ps);
+		return SYSERR;
 	} else {
-		kprintf2("block: %d\n", (WORD*)block);
-		kprintf2("p: %d\n", (WORD*)p->gcbase);
+		//kprintf2("block: %d\n", (WORD*)block);
+		//kprintf2("p: %d\n", (WORD*)p->gcbase);
 		while (p != (struct gcblock*)NULL && p->gcbase != (WORD*)block) {
 			q = p;
 			p = p->gcnext;
-			kprintf2("p: %d\n", (WORD*)p->gcbase);
+			//kprintf2("p: %d\n", (WORD*)p->gcbase);
 		}
 		if (p == (struct gcblock*)NULL) {
-			retVal = SYSERR;
-			kprintf2("gcblock not found for freememgb call!!!!!!\n");
+			//kprintf2("gcblock not found for freememgb call!!!!!!\n");
+			restore(ps);
+			return SYSERR;
 		} else {
 			if (q == (struct gcblock*)NULL) {
 				proctab[currpid].pblocks = (WORD*)p->gcnext;
 			} else {
 				q->gcnext = p->gcnext;
 			}
+			if (p->gcsize != roundmb(size)) {
+				restore(ps);
+				return SYSERR;
+			}
 			if (freememinternal((struct mblock*)p, sizeof(struct gcblock)) == SYSERR) {
-				kprintf2("error freeing gcblock!!!!\n");
-				retVal = SYSERR;
+				restore(ps);
+				return SYSERR;
 			}
 		}
 	}
