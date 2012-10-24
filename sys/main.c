@@ -33,8 +33,8 @@ void allocate_and_not_free(char *name, int numblocks);
 void free_without_allocating(char *name, int numblocks);
 void allocate_and_suicide(char *name, int numblocks);
 void allocate_and_free_and_suicide(char *name, int numblocks);
-void allocate_and_free_invalid_address(char *name, int numblocks);
-void allocate_and_free_invalid_length(char *name, int numblocks);
+void allocate_and_free_invalid_address(char *name, int numblocks, int twoallocations);
+void allocate_and_free_invalid_length(char *name, int numblocks, int twoallocations);
 void free_mem(char* name, int * ptr, int numblocks);
 void allocate_n_times_and_free_m(char* name, int total_blks, int blks_to_free, int blk_size);
 
@@ -167,8 +167,8 @@ void allocate_and_free_invalid_address_length_test()
         kprintf("\tBefore termination : Free mem size = %ld\n", 
                 (pre_memsize = get_free_memsize()));
         
-        resume(proc = create(allocate_and_free_invalid_address, 2000, 20, "A", 2, 
-                                                        "A", 50));
+        resume(proc = create(allocate_and_free_invalid_address, 2000, 20, "A", 3, 
+                                                        "A", 50, FALSE));
         
         kprintf("\tAfter termination : Free mem size = %ld\n", 
                 (post_memsize = get_free_memsize()));
@@ -181,8 +181,8 @@ void allocate_and_free_invalid_address_length_test()
 	kprintf("\tBefore termination : Free mem size = %ld\n", 
                 (pre_memsize = get_free_memsize()));
         
-        resume(proc = create(allocate_and_free_invalid_length, 2000, 20, "A", 2, 
-                                                        "A", 50));
+        resume(proc = create(allocate_and_free_invalid_length, 2000, 20, "A", 3, 
+                                                        "A", 50, FALSE));
         
         kprintf("\tAfter termination : Free mem size = %ld\n", 
                 (post_memsize = get_free_memsize()));
@@ -190,6 +190,32 @@ void allocate_and_free_invalid_address_length_test()
         assert((post_memsize - pre_memsize) == 0, 
                 "\tTest failed\n");
 
+        kprintf("\tTest3 : Free invalid address (with two allocations)\n");
+        kprintf("\tBefore termination : Free mem size = %ld\n", 
+                (pre_memsize = get_free_memsize()));
+        
+        resume(proc = create(allocate_and_free_invalid_address, 2000, 20, "A", 3, 
+                                                        "A", 50, TRUE));
+        
+        kprintf("\tAfter termination : Free mem size = %ld\n", 
+                (post_memsize = get_free_memsize()));
+
+        assert((post_memsize - pre_memsize) == 0, 
+                "\tTest failed\n");
+
+
+        kprintf("\n\tTest4 : Free invalid length (with two allocations)\n");
+	kprintf("\tBefore termination : Free mem size = %ld\n", 
+                (pre_memsize = get_free_memsize()));
+        
+        resume(proc = create(allocate_and_free_invalid_length, 2000, 20, "A", 3, 
+                                                        "A", 50, TRUE));
+        
+        kprintf("\tAfter termination : Free mem size = %ld\n", 
+                (post_memsize = get_free_memsize()));
+
+        assert((post_memsize - pre_memsize) == 0, 
+                "\tTest failed\n");
 }
 
 void allocate_in_main_free_in_another()
@@ -298,10 +324,13 @@ void allocate_and_free_and_suicide(char *name, int numblocks)
 }
 
 
-void allocate_and_free_invalid_address(char *name, int numblocks)
+void allocate_and_free_invalid_address(char *name, int numblocks, int twoallocations)
 {
         int* ptr;
         kprintf("\tProcess %s\n", name);
+	if (twoallocations) {
+		getmemgb(numblocks*sizeof(int));
+	}
         ptr = (int *)getmemgb(numblocks*sizeof(int));
         if(freememgb(ptr+1, numblocks*sizeof(int)) == SYSERR) {
         
@@ -312,10 +341,13 @@ void allocate_and_free_invalid_address(char *name, int numblocks)
 	}
 }
 
-void allocate_and_free_invalid_length(char *name, int numblocks)
+void allocate_and_free_invalid_length(char *name, int numblocks, int twoallocations)
 {
         int* ptr;
         kprintf("\tProcess %s\n", name);
+	if (twoallocations) {
+		getmemgb(numblocks*sizeof(int));
+	}
         ptr = (int *)getmemgb(numblocks*sizeof(int));
         if(freememgb(ptr, numblocks*sizeof(int) - 1) == SYSERR) {
         

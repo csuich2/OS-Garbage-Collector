@@ -24,15 +24,11 @@ SYSCALL freememgb(struct mblock *block, unsigned size)
 		restore(ps);
 		return SYSERR;
 	} else {
-		//kprintf2("block: %d\n", (WORD*)block);
-		//kprintf2("p: %d\n", (WORD*)p->gcbase);
 		while (p != (struct gcblock*)NULL && p->gcbase != (WORD*)block) {
 			q = p;
 			p = p->gcnext;
-			//kprintf2("p: %d\n", (WORD*)p->gcbase);
 		}
-		if (p == (struct gcblock*)NULL) {
-			//kprintf2("gcblock not found for freememgb call!!!!!!\n");
+		if (p == (struct gcblock*)NULL || p->gcsize != size) {
 			restore(ps);
 			return SYSERR;
 		} else {
@@ -40,10 +36,6 @@ SYSCALL freememgb(struct mblock *block, unsigned size)
 				proctab[currpid].pblocks = (WORD*)p->gcnext;
 			} else {
 				q->gcnext = p->gcnext;
-			}
-			if (p->gcsize != roundmb(size)) {
-				restore(ps);
-				return SYSERR;
 			}
 			if (freememinternal((struct mblock*)p, sizeof(struct gcblock)) == SYSERR) {
 				restore(ps);
