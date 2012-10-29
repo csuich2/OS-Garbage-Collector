@@ -23,6 +23,7 @@ void single_allocate_and_suicide_test();
 void single_allocate_and_free_and_suicide_test();
 void allocate_and_free_invalid_address_length_test();
 void allocate_n_times_and_free_m_test();
+void getmem_and_freememgb_test();
 
 // Multiple process allocate/free
 void allocate_in_main_free_in_another();
@@ -38,6 +39,9 @@ void allocate_and_free_invalid_length(char *name, int numblocks, int twoallocati
 void free_mem(char* name, int * ptr, int numblocks);
 void allocate_n_times_and_free_m(char* name, int total_blks, int blks_to_free, int blk_size);
 
+// Unmatched garbage collection
+void getmem_and_freememgb(char *name);
+
 
 /*------------------------------------------------------------------------
  *  main  --  user main program
@@ -45,6 +49,7 @@ void allocate_n_times_and_free_m(char* name, int total_blks, int blks_to_free, i
  */
 int main()
 {
+	kprintf2("sizeof(int): %d\n", sizeof(int));
         single_allocate_and_free_test();
         single_allocate_and_not_free_test();
         single_free_without_allocating_test();
@@ -54,6 +59,8 @@ int main()
 	allocate_and_free_invalid_address_length_test();
 	allocate_in_main_free_in_another();
 	allocate_n_times_and_free_m_test();
+
+	getmem_and_freememgb_test();
 
 	return 0;
 }
@@ -216,6 +223,24 @@ void allocate_and_free_invalid_address_length_test()
 
         assert((post_memsize - pre_memsize) == 0, 
                 "\tTest failed\n");
+}
+
+void getmem_and_freememgb_test()
+{
+	int proc;
+	unsigned pre_memsize, post_memsize;
+
+	kprintf("\nTest : getmem_and_freememgb\n");
+	kprintf("\tBefore : Free mem size = %ld\n",
+		(pre_memsize = get_free_memsize()));
+
+	resume(proc = create(getmem_and_freememgb,2000, 20, "A", 1, "A"));
+
+	kprintf("\tAfter : Free mem size = %ld\n",
+		(post_memsize = get_free_memsize()));
+
+	assert((pre_memsize - post_memsize == roundmb(sizeof(int))),
+		"Test failed\n");
 }
 
 void allocate_in_main_free_in_another()
@@ -405,6 +430,20 @@ void allocate_n_times_and_free_m(char* name, int total_blks, int blks_to_free, i
 	kprintf("In allocate_n_times_and_free_m : Free mem size = %ld\n", 
                 get_free_memsize());
 
+}
+
+void getmem_and_freememgb(char* name)
+{
+	int *ptr;
+	int retVal;
+	kprintf("Process %s\n", name);
+
+        ptr = (int *)getmem(sizeof(int));
+
+	retVal = freememgb(ptr, sizeof(int));
+
+	assert(retVal == SYSERR,
+		"Did not return false when getmem & freememgb used together\n");
 }
 
 // Utility methods
